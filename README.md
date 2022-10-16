@@ -92,7 +92,7 @@ ngrok http 5000
 ```
 
 ### Update your webhook ###
-Update your bot Webhook URL at [MessengerX.io Portal](https://portal.messengerx.io) with the url provided as shown below to continue development
+Update your bot Webhook URL at [MessengerX.io Portal](https://messengerx.io) with the url provided as shown below to continue development
 ```
 Webhook Url: https://<TUNNEL-HOST>/webhooks/machaao/incoming
 ```
