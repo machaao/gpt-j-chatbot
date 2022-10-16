@@ -15,7 +15,7 @@ looking to build and / or monetize GPT-J based character chatbots on Web and Nat
 * Ngrok for Tunneling
 
 ## Get MessengerX.io API Key ##
-* Get your FREE Developer API Token via [MessengerX.io](https://portal.messengerx.io) 
+* Get your FREE Developer API Token via [MessengerX.io](https://messengerx.io) 
   or by [emailing us](mailto:connect@machaao.com) and replace it in the ```.env``` file under the entry ```API_TOKEN```
 * MessengerX.io allows you to build and integrate a custom chatbot in your website or app
 
@@ -92,7 +92,7 @@ ngrok http 5000
 ```
 
 ### Update your webhook ###
-Update your bot Webhook URL at [MessengerX.io Portal](https://messengerx.io) with the url provided as shown below to continue development
+Update your bot Webhook URL at [MessengerX.io Portal](https://portal.messengerx.io) with the url provided as shown below to continue development
 ```
 Webhook Url: https://<TUNNEL-HOST>/webhooks/machaao/incoming
 ```
