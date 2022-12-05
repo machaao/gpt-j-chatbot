@@ -15,7 +15,7 @@ looking to build and / or monetize GPT-J based character chatbots on Web and Nat
 * Ngrok for Tunneling
 
 ## Get MessengerX.io API Key ##
-* Get your FREE Developer API Token via [MessengerX.io](https://messengerx.io) 
+* Get your FREE Developer API Token via [MessengerX.io](https://portal.messengerx.io) 
   or by [emailing us](mailto:connect@machaao.com) and replace it in the ```.env``` file under the entry ```API_TOKEN```
 * MessengerX.io allows you to build and integrate a custom chatbot in your website or app
 
