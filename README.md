@@ -50,7 +50,7 @@ nano -w .env
 ```
 API_TOKEN = <Machaao API Token>
 NLP_CLOUD_TOKEN = <NLP Cloud Token> 
-BASE_URL = <Machaao Base Url> ex: https://ganglia-dev.machaao.com
+BASE_URL = <Machaao Base Url> ex: https://ganglia.machaao.com
 NAME = <Your Bot Display Name> ex: Jess
 DASHBOT_KEY = <Your dashbot token> (Optional) (Conversational Analytics)
 
