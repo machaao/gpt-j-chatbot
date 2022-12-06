@@ -139,7 +139,7 @@ Webhook Url: <YOUR-HEROKU-APP-URL>/webhooks/machaao/incoming
 ```
 
 ### Test your bot:
-Visit: ```https://dev.messengerx.io/<your-character-name>```
+Visit: ```https://messengerx.io/<your-character-name>```
 
 
 ## Notes / Additional Resources ##
