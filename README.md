@@ -103,7 +103,7 @@ https://1234-115-187-40-104.ngrok.io/webhooks/machaao/incoming
 ![figure](images/mx_screenshot.png)
 
 ### Test your bot:
-Visit: ```https://dev.messengerx.io/<bot-name>```
+Visit: ```https://messengerx.io/<bot-name>```
 
 
 ## Remote Setup (Heroku) ##
