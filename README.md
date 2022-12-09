@@ -71,8 +71,7 @@ For better understanding of the above GPT-J parameters, check out the [nlpcloud.
 
 ### Modify logic/prompt.txt to change the character ###
 ```
-This is a discussion between [user] and [name]
-[name] is a very understanding girl.
+{{bot.displayName}} is a very understanding girl.
 ```
 
 ### Modify the core() function in logic/bot_logic.py to personalize responses ###
