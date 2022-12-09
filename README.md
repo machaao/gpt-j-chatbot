@@ -1,6 +1,6 @@
-## A GPT-J Powered Character - Chatbot Template ##
+## A GPT-J Powered AI Character Chatbot Template ##
 The intent of this template is to serve as a quick intro guide for fellow developers 
-looking to build and / or monetize GPT-J based character chatbots on Web and Native Android.
+looking to build and / or monetize AI Powered character chatbots on Web and Native Android.
 
 ## Live Web Demo ##
 ![figure](images/img.png)
