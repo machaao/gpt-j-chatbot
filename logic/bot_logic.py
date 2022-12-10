@@ -50,7 +50,7 @@ class BotLogic:
         load_dotenv()
 
         self.api_token = os.environ.get("API_TOKEN")
-        self.base_url = os.environ.get("BASE_URL", "https://ganglia-dev.machaao.com")
+        self.base_url = os.environ.get("BASE_URL", "https://ganglia.machaao.com")
         self.nlp_cloud_token = os.environ.get("NLP_CLOUD_TOKEN")
         self.name = os.environ.get("NAME")
         self.limit = os.environ.get("LIMIT", 'True')
