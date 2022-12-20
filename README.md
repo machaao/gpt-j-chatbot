@@ -5,28 +5,18 @@ looking to build and / or monetize AI Powered character chatbots on Web and Nati
 ## Live Web Demo ##
 ![figure](images/img.png)
 
-[Jeanie](https://messengerx.io/jeanie) is a GPT-J powered virtual girlfriend based on the above code
+[Jeanie](https://messengerx.io/jeanie) is a GPT-J powered virtual girlfriend based on this repository
 
 ## Requirements for running it locally on laptop ##
 * Windows / Mac / Linux with Git installed
 * Python 3.5+
 * MessengerX.io API Token - FREE for Indie Developers
-* NLPCloud.io Token - (Pay as you Go plan - Maybe be required)
 * Ngrok for Tunneling
+* Desktop / Laptop with a minimum of 16GB RAM 
+* GPU is required for faster inference
+* EleutherAI/gpt-neo-1.3B 
+* NLPCloud.io Token - (Optional)
 
-## Get MessengerX.io API Key ##
-* Get your FREE Developer API Token via [MessengerX.io](https://portal.messengerx.io) 
-  or by [emailing us](mailto:connect@machaao.com) and replace it in the ```.env``` file under the entry ```API_TOKEN```
-* MessengerX.io allows you to build and integrate a custom chatbot in your website or app
-
-
-## Get NLPCloud.io API Key ##
-* You can acquire an NLPCloud API Key via [NLP Cloud](https://nlpcloud.io) and replace it in the ```.env``` file under the entry
-```NLP_CLOUD_TOKEN```
-  
-## Get Dashbot.io API KEY ##
-* You can acquire the API Key via [Dashbot.io](https://dashbot.io) and replace it in the ```.env``` file under the entry
-```DASHBOT_KEY```
   
 ## Local Setup ##
 ### Download or clone this repository ###
@@ -49,10 +39,12 @@ nano -w .env
 
 ```
 API_TOKEN = <Machaao API Token>
-NLP_CLOUD_TOKEN = <NLP Cloud Token> 
 BASE_URL = <Machaao Base Url> ex: https://ganglia.machaao.com
 NAME = <Your Bot Display Name> ex: Jess
 DASHBOT_KEY = <Your dashbot token> (Optional) (Conversational Analytics)
+MODEL_NAME=EleutherAI/gpt-neo-1.3B # for local inference / testing [we recommend using GPT-NEO 1.3B for 16GB ram - load can take up to 1 min and inference avg is about 10 - 20 seconds]
+NLP_CLOUD_TOKEN = <NLP Cloud Token>  # for faster remote inference
+
 
 # BOT PARAMS - Unset Parameters would use their default values.
 # Don't use Top_p and Temperature parameters simultaneously.
@@ -68,11 +60,27 @@ MAX_LENGTH="50"
 ```
 For better understanding of the above GPT-J parameters, check out the [nlpcloud.io](https://docs.nlpcloud.io/#generation) docs
 
+## Get MessengerX.io API Key ##
+* Get your FREE Developer API Token via [MessengerX.io](https://portal.messengerx.io), replace it in the ```.env``` file under the entry ```API_TOKEN```
+* MessengerX.io allows you to build and integrate a custom chatbot in your website or app
 
-### Modify logic/prompt.txt to change the character ###
+
+## Get NLPCloud.io API Key (Recommended for Production) ##
+* You can acquire an NLPCloud API Key via [NLP Cloud](https://nlpcloud.io) and replace it in the ```.env``` file under the entry
+```NLP_CLOUD_TOKEN```
+  
+## Get Dashbot.io API KEY (Recommended for Production) ##
+* You can acquire the API Key via [Dashbot.io](https://dashbot.io) and replace it in the ```.env``` file under the entry
+```DASHBOT_KEY```
+
+### Modify logic/prompt.txt to change the character script ###
 ```
-This is a discussion between [user] and [name]
-[name] is a very understanding girl.
+bot_name is a very understanding girl
+bot_name and stranger are seeing each other
+Here is a recent discussion between stranger and bot_name
+###
+stranger: hi
+bot_name: hello there
 ```
 
 ### Modify the core() function in logic/bot_logic.py to personalize responses ###
@@ -144,6 +152,4 @@ Visit: ```https://messengerx.io/<your-character-name>```
 
 ## Notes / Additional Resources ##
 * Please note that this document isn't meant to be used as a guide for production environment setup.
-* Please note to get a downloadable APK for your character, please contact us at [connect@machaao.com](mailto:connect@machaao.com)
-
 [![Gitter](https://badges.gitter.im/messengerx-io/community.svg)](https://gitter.im/messengerx-io/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)  

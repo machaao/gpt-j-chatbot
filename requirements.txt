@@ -9,3 +9,6 @@ python-dotenv
 machaao==0.3.5
 configparser~=5.2.0
 nltk
+transformers
+torch
+accelerate

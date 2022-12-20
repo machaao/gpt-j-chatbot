@@ -1,18 +1,12 @@
-import datetime
 import json
 import os
 import sys
-import traceback
-
-import asyncio
 import jwt
 import requests
 from dotenv import load_dotenv
 from flask import Flask, request
 from machaao import Machaao
 import traceback
-import datetime
-
 from logic.bot_logic import BotLogic
 
 app = Flask(__name__)
@@ -201,6 +195,6 @@ def process_response(request):
 
 if __name__ == '__main__':
     if not error:
-        app.run(debug=True, port=5000)
+        app.run(debug=True, port=5000, use_reloader=False)
     else:
         print(f"{error_message}")

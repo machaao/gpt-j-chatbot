@@ -4,14 +4,34 @@ import json
 import nlpcloud
 import nltk
 import requests
-from nltk import word_tokenize
 from requests.structures import CaseInsensitiveDict
 from dotenv import load_dotenv
 import os
 
-ban_words = ["nigger", "negro", "nazi", "faggot", "murder", "suicide"]
-# list of banned input words
+from torch.nn.utils.rnn import pad_sequence
+from transformers import AutoTokenizer, GPTNeoForCausalLM
+import torch
 
+load_dotenv()
+
+
+device = "cuda:0" if torch.cuda.is_available() else "cpu"
+
+MODEL_NAME = os.environ.get("MODEL_NAME", "")
+MAX_HISTORY_LENGTH=os.environ.get("HISTORY_LENGTH", 5)
+
+model = None
+
+if MODEL_NAME:
+    print(f"loading {MODEL_NAME} on local, please wait...")
+    model = GPTNeoForCausalLM.from_pretrained(MODEL_NAME)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+else:
+    print(f"no model name found - please check your .env file, gonna try to use nlpcloud.io")
+
+ban_words = ["nigger", "negro", "nazi", "faggot", "murder", "suicide"]
+
+# list of banned input words
 c = 'UTF-8'
 
 
@@ -47,8 +67,6 @@ def get_details(api_token, base_url):
 class BotLogic:
     def __init__(self):
         # Initializing Config Variables
-        load_dotenv()
-
         self.api_token = os.environ.get("API_TOKEN")
         self.base_url = os.environ.get("BASE_URL", "https://ganglia.machaao.com")
         self.nlp_cloud_token = os.environ.get("NLP_CLOUD_TOKEN")
@@ -111,7 +129,7 @@ class BotLogic:
         return prompt.replace("name]", f"{name}]")
 
     def get_recent(self, user_id: str):
-        count = 5
+        count = MAX_HISTORY_LENGTH
         ## please don't edit the lines below
         e = "L3YxL2NvbnZlcnNhdGlvbnMvaGlzdG9yeS8="
         check = base64.b64decode(e).decode(c)
@@ -164,13 +182,17 @@ class BotLogic:
             name = bot.get("displayName", name)
 
         if _prompt:
-            _prompt = _prompt.replace("name]", f"{name}]")
+            _prompt = _prompt.replace("bot_name", f"{name}")
 
         valid = True
 
         # intents = ["default", "balance"]
 
-        recent_text_data = self.get_recent(user_id)
+        recent_text_data = []
+
+        if str.lower(req.strip()) != "hi":
+            recent_text_data = self.get_recent(user_id)  # [] -> blank for testing
+
         recent_convo_length = len(recent_text_data)
 
         print(f"len of returned history: {recent_convo_length}")
@@ -179,9 +201,9 @@ class BotLogic:
         # tags = nltk.pos_tag(text)
         # print(f"tags: {tags}")
 
-        _client = nlpcloud.Client("gpt-j", self.nlp_cloud_token, gpu=True)
+        #
 
-        history = _prompt + "\n"
+        history = str.strip(_prompt) + "\n###\n"
 
         banned = any(ele in req for ele in ban_words)
 
@@ -189,41 +211,100 @@ class BotLogic:
             print(f"banned input:" + str(req) + ", id: " + user_id)
             return False, "Oops, please refrain from such words"
 
-        for text in recent_text_data[::-1]:
-            msg_type, text_data = self.parse(text)
+        if recent_convo_length > 0:
+            for text in recent_text_data[::-1]:
+                msg_type, text_data = self.parse(text)
+                if text_data and len(text_data) < 200 and "error" not in str.lower(text_data) and "oops" not in str.lower(text_data):
+                    if msg_type is not None:
+                        # outgoing msg - bot msg
+                        history += f"{name}: " + text_data
+                    else:
+                        # incoming msg - user msg
+                        history += "stranger: " + text_data
 
-            if text_data:
-                if msg_type is not None:
-                    # outgoing msg - bot msg
-                    history += f"[{name}]: " + text_data
-                else:
-                    # incoming msg - user msg
-                    history += "[user]: " + text_data
+                    history += "\n"
 
-                history += "\n"
+                    if msg_type == "outgoing":
+                        history += "###\n"
+        else:
+            history += f"stranger: " + str(req) + "\n"
 
-                if msg_type == "outgoing":
-                    history += "###\n"
-
-        history += f"[{name}]: "
-
+        # history += f"{name}: \n"
         # Max input size = 2048 tokens
         try:
-            generation = _client.generation(history,
-                                            min_length=1,
-                                            max_length=self.max_length,
-                                            top_k=self.top_k,
-                                            top_p=self.top_p,
-                                            temperature=self.temp,
-                                            length_no_input=True,
-                                            end_sequence="\n###",
-                                            remove_end_sequence=True,
-                                            remove_input=True)
+            print(f"processing prompt:\n{history}")
+            if model:
+                resp = self.process_via_local(req, name, history)
+            else:
+                resp = self.process_via_nlpcloud(name, history)
 
-            resp = str.strip(generation["generated_text"])
-            reply = str.capitalize(resp)
-            print(history + reply)
-            return valid, reply
+            # reply = str.capitalize(resp)
+            # print(history + reply)
+            return valid, resp
         except Exception as e:
             print(f"error - {e}, for {user_id}")
             return False, "Oops, I am feeling a little overwhelmed with messages\nPlease message me later"
+
+    def process_via_nlpcloud(self, name, prompt):
+        _client = nlpcloud.Client("gpt-j", self.nlp_cloud_token, gpu=True)
+        generation = _client.generation(prompt,
+                                        min_length=1,
+                                        max_length=self.max_length,
+                                        top_k=self.top_k,
+                                        top_p=self.top_p,
+                                        temperature=self.temp,
+                                        length_no_input=True,
+                                        end_sequence="\n###",
+                                        remove_end_sequence=True,
+                                        remove_input=True)
+        resp = str.strip(generation["generated_text"])
+        output = str.replace(resp, f"{name}:", "")
+        return output
+
+    def process_via_local(self, req, name, prompt):
+        end_sequence = "###\n"
+
+        input_ids = tokenizer(prompt, return_tensors="pt").to(device).input_ids
+        sens = pad_sequence(input_ids, batch_first=True, padding_value=-1)
+        attention_mask = (sens != -1).long()
+        max_length = int(len(prompt) + len(req) + 10)
+
+        if max_length > 2048:
+            max_length = 2048
+
+        gen_tokens = model.generate(
+            sens,
+            do_sample=True,
+            temperature=0.9,
+            top_p=self.top_p,
+            top_k=self.top_k,
+            max_length=max_length,
+            attention_mask=attention_mask,
+            eos_token_id=int(tokenizer.convert_tokens_to_ids(end_sequence))
+        )
+
+        gen = tokenizer.batch_decode(gen_tokens)
+        gen_text = gen[0]
+
+        gen_text = str.replace(str(gen_text), prompt, "")
+        # print("returned: " + gen_text)
+
+        gen_text = str.split(gen_text, "\n")
+        first_match = None
+
+        if len(gen_text) > 0:
+            first_match = gen_text[0]
+
+            for g in gen_text:
+                if len(g) > 5 and f"{name}:" in g and g not in prompt:
+                    gen_text = g
+                    break
+
+        if not gen_text:
+            gen_text = first_match
+
+        output = str.replace(gen_text, f"{name}:", "")
+
+        print("output text: " + output)
+
+        return str.strip(output)
