@@ -1,6 +1,6 @@
 ## A GPT-J Powered AI Character Chatbot Template ##
 The intent of this template is to serve as a quick intro guide for fellow developers 
-looking to Build AI Powered Personalized Characters
+looking to build AI Powered Personalized Characters
 
 ## Live Web Demo ##
 ![figure](images/img.png)
