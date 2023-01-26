@@ -27,7 +27,7 @@ if MODEL_NAME:
     print(f"loading {MODEL_NAME} on local, on device {device}, please wait...")
     if MODEL_X=="False":
         model = GPTNeoForCausalLM.from_pretrained(MODEL_NAME).to(device)
-    else:
+    elif MODEL_X=="True":
         model = GPTNeoXForCausalLM.from_pretrained(MODEL_NAME).to(device)
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 else:
