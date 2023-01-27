@@ -60,6 +60,14 @@ MAX_LENGTH="50"
 ```
 For better understanding of the above GPT-J parameters, check out the [nlpcloud.io](https://docs.nlpcloud.io/#generation) docs
 
+## Additional/optional settings in .env for gpt-neo-X model architecture:
+```
+MODEL_NAME=EleutherAI/pythia-1.4b-deduped
+MODEL_X=True
+```
+Set MODEL_X to True for gpt-neo-X model architecture and False for gpt-neo model architecture
+See https://huggingface.co/EleutherAI for available models
+
 ## Get MessengerX.io API Key ##
 * Get your FREE Developer API Token via [MessengerX.io](https://portal.messengerx.io), replace it in the ```.env``` file under the entry ```API_TOKEN```
 * MessengerX.io allows you to build and integrate a custom chatbot in your website or app
