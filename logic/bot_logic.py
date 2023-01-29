@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 import os
 
 from torch.nn.utils.rnn import pad_sequence
-from transformers import AutoTokenizer, GPTNeoForCausalLM, GPTNeoXForCausalLM
+from transformers import AutoTokenizer, AutoModel
 import torch
 
 load_dotenv()
@@ -19,16 +19,12 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 MODEL_NAME = os.environ.get("MODEL_NAME", "")
 MAX_HISTORY_LENGTH=os.environ.get("HISTORY_LENGTH", 5)
-MODEL_X = os.environ.get("MODEL_X", "False")
 
 model = None
 
 if MODEL_NAME:
     print(f"loading {MODEL_NAME} on local, on device {device}, please wait...")
-    if MODEL_X=="False":
-        model = GPTNeoForCausalLM.from_pretrained(MODEL_NAME).to(device)
-    elif MODEL_X=="True":
-        model = GPTNeoXForCausalLM.from_pretrained(MODEL_NAME).to(device)
+    model = AutoModel.from_pretrained(MODEL_NAME).to(device)
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 else:
     print(f"no model name found - please check your .env file, gonna try to use nlpcloud.io")
