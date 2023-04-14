@@ -1,6 +1,6 @@
 ## A GPT-J Powered AI Character Chatbot Template ##
 The intent of this template is to serve as a quick intro guide for fellow developers 
-looking to build and / or monetize AI Powered character chatbots on Web and Native Android.
+looking to build AI Powered Personalized Characters
 
 ## Live Web Demo ##
 ![figure](images/img.png)
@@ -42,7 +42,7 @@ API_TOKEN = <Machaao API Token>
 BASE_URL = <Machaao Base Url> ex: https://ganglia.machaao.com
 NAME = <Your Bot Display Name> ex: Jess
 DASHBOT_KEY = <Your dashbot token> (Optional) (Conversational Analytics)
-MODEL_NAME=EleutherAI/gpt-neo-1.3B # for local inference / testing [we recommend using GPT-NEO 1.3B for 16GB ram - load can take up to 1 min and inference avg is about 10 - 20 seconds]
+MODEL_NAME=EleutherAI/gpt-neo-1.3B # for local inference / testing [we recommend using GPT-NEO 1.3B for 16GB ram - load can take up to 1 min and inference avg is about 10 - 20 seconds] See https://huggingface.co/EleutherAI for additional models
 NLP_CLOUD_TOKEN = <NLP Cloud Token>  # for faster remote inference
 
 
@@ -59,6 +59,7 @@ TOP_K="50"
 MAX_LENGTH="50"
 ```
 For better understanding of the above GPT-J parameters, check out the [nlpcloud.io](https://docs.nlpcloud.io/#generation) docs
+
 
 ## Get MessengerX.io API Key ##
 * Get your FREE Developer API Token via [MessengerX.io](https://portal.messengerx.io), replace it in the ```.env``` file under the entry ```API_TOKEN```
