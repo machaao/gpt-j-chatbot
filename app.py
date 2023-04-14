@@ -56,7 +56,7 @@ def exception_handler(exception):
 
 def extract_sender(req):
     try:
-        return req.headers["user_id"]
+        return req.headers["machaao-user-id"]
     except Exception as e:
         exception_handler(e)
 
@@ -173,13 +173,13 @@ def root():
     return "ok"
 
 
-@app.route('/webhooks/machaao/incoming', methods=['GET', 'POST'])
+@app.route('/machaao/hook', methods=['GET', 'POST'])
 def receive():
     return process_response(request)
 
 
 def process_response(request):
-    _api_token = request.headers["api_token"]
+    _api_token = request.headers["bot-token"]
     sender_id = extract_sender(request)
     recv_text, label, client, sdk, action_type = extract_message(request)
 

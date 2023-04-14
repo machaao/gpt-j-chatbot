@@ -102,11 +102,9 @@ ngrok http 5000
 ### Update your webhook ###
 Update your bot Webhook URL at [MessengerX.io Portal](https://portal.messengerx.io) with the url provided as shown below to continue development
 ```
-Webhook Url: https://<TUNNEL-HOST>/webhooks/machaao/incoming
-```
 If you use [Ngrok.io](https://ngrok.io), your webhook URL would be of the format as in the example below
 ```
-https://1234-115-187-40-104.ngrok.io/webhooks/machaao/incoming 
+https://1234-115-187-40-104.ngrok.io/machaao/hook
 ```
 ![figure](images/mx_screenshot.png)
 
@@ -143,7 +141,7 @@ heroku logs --tail
 ### Update your webhook ###
 Update your bot Webhook URL at [MessengerX.io Portal](https://portal.messengerx.io) with the heroku app url
 ```
-Webhook Url: <YOUR-HEROKU-APP-URL>/webhooks/machaao/incoming
+Webhook Url: <YOUR-HEROKU-APP-URL>/machaao/hook
 ```
 
 ### Test your bot:
