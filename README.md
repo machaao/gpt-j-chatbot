@@ -104,14 +104,12 @@ ngrok http 5000
 Update your bot Webhook URL at [MessengerX.io Portal](https://portal.messengerx.io) with the url provided as shown below to continue development
 ```
 If you use [Ngrok.io](https://ngrok.io), your webhook URL would be of the format as in the example below
-```
 https://1234-115-187-40-104.ngrok.io/machaao/hook
 ```
-![figure](images/mx_screenshot.png)
+![figure](https://github.com/machaao/machaao-py/raw/master/images/mx_screenshot.png?raw=true)
 
 ### Test your bot:
 Visit: ```https://messengerx.io/<bot-name>```
-
 
 ## Remote Setup (Heroku) ##
 
