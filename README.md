@@ -1,4 +1,4 @@
-## A GPT-J Powered AI Character Chatbot Template ##
+## A GPT-J Powered AI Character Girlfriend Chatbot Template ##
 The intent of this template is to serve as a quick intro guide for fellow developers 
 looking to build AI Powered Personalized Characters
 
