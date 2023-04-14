@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 import os
 
 from torch.nn.utils.rnn import pad_sequence
-from transformers import AutoTokenizer, AutoModel
+from transformers import AutoTokenizer, AutoModel, GPTNeoForCausalLM
 import torch
 
 
@@ -25,7 +25,10 @@ model = None
 
 if MODEL_NAME:
     print(f"loading {MODEL_NAME} on local, on device {device}, please wait...")
-    model = AutoModel.from_pretrained(MODEL_NAME).to(device)
+    if "gpt-neo" in str.lower(MODEL_NAME):
+        model = GPTNeoForCausalLM.from_pretrained(MODEL_NAME).to(device)
+    else:
+        model = AutoModel.from_pretrained(MODEL_NAME).to(device)
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 else:
     print(f"no model name found - please check your .env file, gonna try to use nlpcloud.io")

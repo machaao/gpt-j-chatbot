@@ -14,7 +14,7 @@ looking to build AI Powered Personalized Characters
 * Ngrok for Tunneling
 * Desktop / Laptop with a minimum of 16GB RAM 
 * GPU is required for faster inference
-* EleutherAI/gpt-neo-1.3B 
+* EleutherAI/gpt-neo-1.3B (Be patient, first load and / or first time inference can take time)
 * NLPCloud.io Token - (Optional)
 
   
