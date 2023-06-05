@@ -159,4 +159,4 @@ pip3 install --pre torch torchvision torchaudio --index-url https://download.pyt
 
 ## Notes / Additional Resources ##
 * Please note that this document isn't meant to be used as a guide for production environment setup.
-[![Gitter](https://badges.gitter.im/messengerx-io/community.svg)](https://gitter.im/messengerx-io/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)  
+* Reach out to us on [Twitter](https://twitter.com/messengerxio) for any queries
