@@ -146,6 +146,16 @@ Webhook Url: <YOUR-HEROKU-APP-URL>/machaao/hook
 ### Test your bot:
 Visit: ```https://messengerx.io/<your-character-name>```
 
+### Known Issues (on M1+ Macs)
+```
+Tips for MPS on Mac [Use Nightly Build]
+pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cpu
+```
+
+- Running on MPS is unstable
+- Running on CPU is reliable but slower
+- Approx inference time > 60 seconds on Mac M1 Pro 2021
+
 
 ## Notes / Additional Resources ##
 * Please note that this document isn't meant to be used as a guide for production environment setup.

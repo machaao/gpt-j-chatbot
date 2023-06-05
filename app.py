@@ -22,6 +22,7 @@ dashbot_url = "https://tracker.dashbot.io/track?platform=webchat&v=11.1.0-rest&t
 error_message = "invalid configuration detected, check your .env file for missing parameters"
 params = [api_token, base_url, name]
 
+
 error = False
 for param in params:
     if not param:

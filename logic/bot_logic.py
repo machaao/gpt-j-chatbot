@@ -1,4 +1,6 @@
 import base64
+import sys
+import traceback
 from datetime import datetime
 import json
 import nlpcloud
@@ -9,27 +11,57 @@ from dotenv import load_dotenv
 import os
 
 from torch.nn.utils.rnn import pad_sequence
-from transformers import AutoTokenizer, AutoModel, GPTNeoForCausalLM
+from transformers import AutoTokenizer, AutoModel, GPTNeoForCausalLM, GenerationConfig
 import torch
-
 
 load_dotenv()
 
-
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+#
+if not torch.backends.mps.is_available():
+    if not torch.backends.mps.is_built():
+        print("MPS not available because the current PyTorch install was not "
+              "built with MPS enabled.")
+    else:
+        print("MPS not available because the current MacOS version is not 12.3+ "
+              "and/or you do not have an MPS-enabled device on this machine.")
+else:
+    device = "mps"
 
 MODEL_NAME = os.environ.get("MODEL_NAME", "")
-MAX_HISTORY_LENGTH=os.environ.get("HISTORY_LENGTH", 5)
+MAX_HISTORY_LENGTH = os.environ.get("HISTORY_LENGTH", 5)
 
 model = None
+
+import torch
+from peft import PeftModel
+from transformers import AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer, StoppingCriteria, StoppingCriteriaList
+
+# tokenizer = None
 
 if MODEL_NAME:
     print(f"loading {MODEL_NAME} on local, on device {device}, please wait...")
     if "gpt-neo" in str.lower(MODEL_NAME):
         model = GPTNeoForCausalLM.from_pretrained(MODEL_NAME).to(device)
+    elif "llama" in str.lower(MODEL_NAME):
+        model = AutoModelForCausalLM.from_pretrained(
+            MODEL_NAME,
+            # load_in_4bit=True,
+            torch_dtype=torch.float16
+        ).to(device)
+
+        adapters_name = 'timdettmers/guanaco-7b'
+
+        model = PeftModel.from_pretrained(model, adapters_name)
+        model = model.merge_and_unload()
+        # tokenizer = LlamaTokenizer.from_pretrained(MODEL_NAME)
+        # tokenizer.bos_token_id = 1
+        stop_token_ids = [0]
     else:
-        model = AutoModel.from_pretrained(MODEL_NAME).to(device)
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+        model = AutoModelForCausalLM.from_pretrained(MODEL_NAME).to(device)
+
+    # if not tokenizer:
+    #     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 else:
     print(f"no model name found - please check your .env file, gonna try to use nlpcloud.io")
 
@@ -37,6 +69,14 @@ ban_words = ["nigger", "negro", "nazi", "faggot", "murder", "suicide"]
 
 # list of banned input words
 c = 'UTF-8'
+
+
+class StopOnTokens(StoppingCriteria):
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
+        for stop_id in stop_token_ids:
+            if input_ids[0][-1] == stop_id:
+                return True
+        return False
 
 
 def send(url, headers, payload=None):
@@ -80,7 +120,7 @@ class BotLogic:
 
         # Bot config
         self.top_p = os.environ.get("TOP_P", 1.0)
-        self.top_k = os.environ.get("TOP_K", 20)
+        self.top_k = os.environ.get("TOP_K", 16)
         self.temp = os.environ.get("TEMPERATURE", 0.3)
         self.max_length = os.environ.get("MAX_LENGTH", 50)
         self.validate_bot_params()
@@ -113,7 +153,7 @@ class BotLogic:
             if self.top_k > 1000:
                 raise Exception("Top_k parameter must be less than 1000")
         else:
-            self.top_k = 50
+            self.top_k = 16
         print(f"Top_k = {self.top_k}")
 
         if self.max_length is not None:
@@ -218,7 +258,8 @@ class BotLogic:
         if recent_convo_length > 0:
             for text in recent_text_data[::-1]:
                 msg_type, text_data = self.parse(text)
-                if text_data and len(text_data) < 200 and "error" not in str.lower(text_data) and "oops" not in str.lower(text_data):
+                if text_data and len(text_data) < 200 and "error" not in str.lower(
+                        text_data) and "oops" not in str.lower(text_data):
                     if msg_type is not None:
                         # outgoing msg - bot msg
                         history += f"{name}: " + text_data
@@ -247,6 +288,7 @@ class BotLogic:
             return valid, resp
         except Exception as e:
             print(f"error - {e}, for {user_id}")
+            traceback.print_exc(file=sys.stdout)
             return False, "Oops, I am feeling a little overwhelmed with messages\nPlease message me later"
 
     def process_via_nlpcloud(self, name, prompt):
@@ -267,31 +309,64 @@ class BotLogic:
 
     def process_via_local(self, req, name, prompt):
         end_sequence = "###\n"
+        # Initialize a StopOnTokens object
+        stop = StopOnTokens()
 
-        input_ids = tokenizer(prompt, return_tensors="pt").to(device).input_ids
-        sens = pad_sequence(input_ids, batch_first=True, padding_value=-1)
-        attention_mask = (sens != -1).long()
         max_length = int(len(prompt) + len(req) + 10)
 
         if max_length > 2048:
             max_length = 2048
 
-        gen_tokens = model.generate(
-            sens,
-            do_sample=True,
-            temperature=0.9,
-            top_p=self.top_p,
-            top_k=self.top_k,
-            max_length=max_length,
-            attention_mask=attention_mask,
-            eos_token_id=int(tokenizer.convert_tokens_to_ids(end_sequence))
-        )
+        max_new_tokens = 1536
+        temperature = 0.7
+        top_p = 0.9
+        top_k = 0
+        repetition_penalty = 1.1
+
+        if "llama" in MODEL_NAME:
+            # Tokenize the messages string
+            tokenizer = LlamaTokenizer.from_pretrained(MODEL_NAME)
+            tokenizer.bos_token_id = 1
+
+            input_ids = tokenizer(prompt, return_tensors="pt").to(device)
+
+            # streamer = Text(tokenizer, timeout=10.0, skip_prompt=True, skip_special_tokens=True)
+            generation_config = GenerationConfig(
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                do_sample=temperature > 0.0,
+                top_p=self.top_p,
+                top_k=self.top_k,
+                repetition_penalty=repetition_penalty,
+                stopping_criteria=StoppingCriteriaList([stop]),
+            )
+            # m = generation_config.from_pretrained(MODEL_NAME)
+
+            gen_tokens = model.generate(**input_ids, generation_config=generation_config)
+        else:
+            tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+            input_ids = tokenizer(prompt, return_tensors="pt").to(device).input_ids
+            sens = pad_sequence(input_ids, batch_first=True, padding_value=-1)
+            attention_mask = (sens != -1).long()
+
+            gen_tokens = model.generate(
+                sens,
+                do_sample=True,
+                temperature=0.9,
+                top_p=self.top_p,
+                top_k=self.top_k,
+                max_length=max_length,
+                attention_mask=attention_mask,
+                eos_token_id=int(tokenizer.convert_tokens_to_ids(end_sequence))
+            )
 
         gen = tokenizer.batch_decode(gen_tokens)
+
+        print(f"{gen}")
+
         gen_text = gen[0]
 
         gen_text = str.replace(str(gen_text), prompt, "")
-        # print("returned: " + gen_text)
 
         gen_text = str.split(gen_text, "\n")
         first_match = None
@@ -304,7 +379,7 @@ class BotLogic:
                     gen_text = g
                     break
 
-        if not gen_text:
+        if first_match:
             gen_text = first_match
 
         output = str.replace(gen_text, f"{name}:", "")
