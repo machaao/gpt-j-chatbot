@@ -154,7 +154,7 @@ pip3 install --pre torch torchvision torchaudio --index-url https://download.pyt
 
 - Running on MPS is unstable
 - Running on CPU is reliable but slower
-- Approx inference time > 60 seconds on Mac M1 Pro 2021
+- Approx inference time > 60 seconds on Mac M1 Pro 2021 / 16GB (GPT-Neo)
 
 
 ## Notes / Additional Resources ##
